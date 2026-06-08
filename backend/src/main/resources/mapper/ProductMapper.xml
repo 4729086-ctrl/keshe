@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shanxi.shopping.mapper.ProductMapper">
+
+    <!-- 商品搜索（分页） -->
+    <select id="search" resultType="com.shanxi.shopping.model.entity.Product">
+        SELECT * FROM products
+        WHERE status = 1
+        <if test="keyword != null and keyword != ''">
+            AND name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        <if test="categoryId != null">
+            AND category_id = #{categoryId}
+        </if>
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countSearch" resultType="long">
+        SELECT COUNT(*) FROM products
+        WHERE status = 1
+        <if test="keyword != null and keyword != ''">
+            AND name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        <if test="categoryId != null">
+            AND category_id = #{categoryId}
+        </if>
+    </select>
+
+    <!-- 商品详情（含卖家/分类信息） -->
+    <select id="findDetailById" resultType="com.shanxi.shopping.model.vo.ProductVO">
+        SELECT
+            p.id,
+            p.seller_id,
+            s.username AS seller_name,
+            s.shop_name,
+            p.category_id,
+            c.name AS category_name,
+            p.name,
+            p.description,
+            p.price,
+            p.stock,
+            p.main_image,
+            p.sales_count,
+            p.status
+        FROM products p
+        LEFT JOIN sellers s ON p.seller_id = s.id
+        LEFT JOIN categories c ON p.category_id = c.id
+        WHERE p.id = #{id}
+    </select>
+
+</mapper>
